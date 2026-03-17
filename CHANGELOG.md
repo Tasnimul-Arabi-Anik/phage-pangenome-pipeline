@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.0
+
+- Added annotation enrichment for FASTA-only runs by propagating orthogroup consensus labels into query-gene outputs.
+- Added `features/query_gene_annotations.tsv` and `features/annotation_summary.tsv`.
+- Improved manuscript-style reports with explicit interpretation and conclusion sections.
+- Improved feature follow-up summaries with annotation-source counts and enriched preferred labels.
+- Documented how to increase close and expanded reference cohort sizes in the README.
+
 ## v0.1.0
 
 - Initial public export of the phage pangenome pipeline.
