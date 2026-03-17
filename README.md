@@ -33,24 +33,48 @@ See [docs/workflow_overview.md](docs/workflow_overview.md) for a compact archite
 ## Quick start
 
 1. Clone the repository
-2. Install dependencies
+2. Create an environment and install dependencies
 3. Put your query genome at `input/query/query.fasta`
 4. Review `config/config.yaml`
-5. Run:
+5. Run a dry-run
+6. Run the full workflow
 
 ```bash
 git clone https://github.com/Tasnimul-Arabi-Anik/phage-pangenome-pipeline.git
 cd phage-pangenome-pipeline
 ```
 
-Recommended environment setup:
+Recommended environment setup with `mamba`:
 
 ```bash
 mamba env create -f envs/full.yaml
 mamba activate phage-pangenome-full
 ```
 
-Then run:
+Alternative setup with a local Python virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install snakemake pyrodigal pandas matplotlib seaborn pillow pyyaml
+```
+
+For the `venv` route, install the non-Python tools separately. `blastn` and `pandoc`
+do not come from `pip`:
+
+```bash
+sudo apt update
+sudo apt install ncbi-blast+ pandoc
+```
+
+Dry-run first:
+
+```bash
+XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile -n --cores 1
+```
+
+Then run the workflow:
 
 ```bash
 XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile --cores 4
@@ -83,11 +107,13 @@ Recommended full environment file:
 
 See [docs/installation.md](docs/installation.md) for the full installation guide, including:
 
+- exact fresh-clone setup
 - `mamba` or `conda`
-- Python `venv`
+- Python `venv` plus `pip`
 - BLAST+ installation
 - Pandoc installation
 - verification commands
+- first dry-run and first full run
 
 ## Discovery modes
 

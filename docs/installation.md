@@ -10,7 +10,15 @@ Typical use pattern:
 2. create an environment
 3. install Snakemake and required tools
 4. place a query FASTA into `input/query/query.fasta`
-5. run the workflow
+5. run a dry-run
+6. run the workflow
+
+Important distinction:
+
+- Python packages such as `snakemake`, `pyrodigal`, and `pandas` can be installed with `pip`
+- external command-line tools such as `blastn`, `blastp`, `makeblastdb`, and `pandoc` are not installed with `pip`
+- for the `venv` route, install BLAST+ and Pandoc separately with your system package manager
+- for the `conda` or `mamba` route, install them in the same environment
 
 ## Minimal requirements
 
@@ -40,6 +48,18 @@ mamba env create -f envs/full.yaml
 mamba activate phage-pangenome-full
 ```
 
+The `envs/full.yaml` environment includes:
+
+- `snakemake`
+- `pyrodigal`
+- `pandas`
+- `matplotlib`
+- `seaborn`
+- `pillow`
+- `pyyaml`
+- `blast`
+- `pandoc`
+
 If you use `conda` instead of `mamba`:
 
 ```bash
@@ -57,7 +77,11 @@ mamba create -n phage-pangenome python=3.12 snakemake pyrodigal pandas matplotli
 mamba activate phage-pangenome
 ```
 
+This manual conda or mamba command is equivalent to the environment file and includes both Python dependencies and the required non-Python tools.
+
 ## Alternative: Python virtual environment
+
+Use this route if you prefer standard Python tooling and are willing to install BLAST+ and Pandoc separately.
 
 ```bash
 git clone https://github.com/Tasnimul-Arabi-Anik/phage-pangenome-pipeline.git
@@ -66,19 +90,27 @@ cd phage-pangenome-pipeline
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install snakemake pyrodigal pandas matplotlib seaborn
+pip install snakemake pyrodigal pandas matplotlib seaborn pillow pyyaml
 ```
 
-Then install the missing Python packages:
+What this installs:
 
-```bash
-pip install pillow pyyaml
-```
+- `snakemake`
+- `pyrodigal`
+- `pandas`
+- `matplotlib`
+- `seaborn`
+- `pillow`
+- `pyyaml`
 
-You still need external tools separately:
+What this does not install:
 
-- `blastn`, `blastp`, `makeblastdb`
+- `blastn`
+- `blastp`
+- `makeblastdb`
 - `pandoc`
+
+You still need those external tools separately.
 
 ### Ubuntu or Debian example for external tools
 
@@ -88,6 +120,27 @@ sudo apt install ncbi-blast+ pandoc
 ```
 
 This route is acceptable, but conda or mamba is still preferred for the full workflow environment because it is easier to reproduce.
+
+### Practical fresh-clone `venv` example
+
+This is the exact style of setup used in a fresh clone validation run:
+
+```bash
+git clone https://github.com/Tasnimul-Arabi-Anik/phage-pangenome-pipeline.git
+cd phage-pangenome-pipeline
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install snakemake pyrodigal pandas matplotlib seaborn pillow pyyaml
+
+sudo apt update
+sudo apt install ncbi-blast+ pandoc
+
+cp /path/to/your/phage.fasta input/query/query.fasta
+XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile -n --cores 1
+XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile --cores 4
+```
 
 ## Verify installation
 
@@ -109,6 +162,12 @@ Expected result:
 - BLAST+ tools should print version info
 - Pandoc should print a version line
 
+You can also confirm the Python helper modules explicitly:
+
+```bash
+python -c "import pyrodigal, pandas, matplotlib, seaborn, PIL, yaml; print('python dependencies OK')"
+```
+
 ## First run
 
 Place a FASTA file at `input/query/query.fasta` and run:
@@ -122,6 +181,14 @@ Then run the actual workflow:
 ```bash
 XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile --cores 4
 ```
+
+If you used a local `venv`, make sure it is activated first:
+
+```bash
+source .venv/bin/activate
+```
+
+If you used `conda` or `mamba`, make sure that environment is activated first.
 
 For the bundled smoke-test dataset:
 
@@ -148,9 +215,22 @@ Your environment is not activated. Activate the `conda`, `mamba`, or `venv` envi
 
 BLAST+ is not installed or not available in `PATH`.
 
+If you used a `venv`, this is expected until you install BLAST+ separately with `apt`, `conda`, or another package manager.
+
 ### `pandoc: command not found`
 
 Pandoc is not installed or not available in `PATH`. The pipeline can still produce Markdown, but DOCX export requires Pandoc.
+
+If you used a `venv`, install it separately because `pip` does not provide the system `pandoc` executable used here.
+
+### Query characterization fails because `prodigal` or `pyrodigal` is missing
+
+The default single-FASTA mode requires one of these:
+
+- `prodigal` available in `PATH`, or
+- `pyrodigal` installed in the active Python environment
+
+The recommended fix is to install `pyrodigal` in the same environment as Snakemake.
 
 ### Remote BLAST seems slow
 
