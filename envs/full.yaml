@@ -1,0 +1,15 @@
+name: phage-pangenome-full
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - snakemake
+  - blast
+  - pandoc
+  - pyrodigal
+  - pandas
+  - matplotlib
+  - seaborn
+  - pillow
+  - pyyaml

@@ -32,12 +32,28 @@ See [docs/workflow_overview.md](docs/workflow_overview.md) for a compact archite
 
 ## Quick start
 
-1. Put your query genome at `input/query/query.fasta`
-2. Review `config/config.yaml`
-3. Run:
+1. Clone the repository
+2. Install dependencies
+3. Put your query genome at `input/query/query.fasta`
+4. Review `config/config.yaml`
+5. Run:
 
 ```bash
-XDG_CACHE_HOME=$PWD/.cache ./.snakemake-venv/bin/snakemake -s workflow/Snakefile --cores 4
+git clone https://github.com/Tasnimul-Arabi-Anik/phage-pangenome-pipeline.git
+cd phage-pangenome-pipeline
+```
+
+Recommended environment setup:
+
+```bash
+mamba env create -f envs/full.yaml
+mamba activate phage-pangenome-full
+```
+
+Then run:
+
+```bash
+XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile --cores 4
 ```
 
 Default mode:
@@ -61,7 +77,17 @@ The workflow was developed and validated with:
 - BLAST+ available in `PATH`
 - `pandoc` available in `PATH` for DOCX report export
 
-See [docs/installation.md](docs/installation.md) for a compact installation guide.
+Recommended full environment file:
+
+- `envs/full.yaml`
+
+See [docs/installation.md](docs/installation.md) for the full installation guide, including:
+
+- `mamba` or `conda`
+- Python `venv`
+- BLAST+ installation
+- Pandoc installation
+- verification commands
 
 ## Discovery modes
 
