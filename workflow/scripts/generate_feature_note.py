@@ -13,13 +13,14 @@ with query_table_path.open() as handle:
     rows = list(reader)
 
 category_counts = Counter(row["category"] for row in rows)
-module_counts = Counter(row["module"] or "unassigned" for row in rows)
+module_counts = Counter(row.get("preferred_module") or row.get("module") or "unassigned" for row in rows)
 singletons = [row for row in rows if row["category"] == "singleton"]
 accessory = [row for row in rows if row["category"] == "accessory"]
 accessory_sorted = sorted(
     accessory,
-    key=lambda row: (-int(row["n_genomes"]), row["module"], row["gene_id"]),
+    key=lambda row: (-int(row["n_genomes"]), row.get("preferred_module", row.get("module", "")), row["gene_id"]),
 )
+annotation_source_counts = Counter(row.get("annotation_source", "unknown") for row in rows)
 
 lines = [
     "# Feature Follow-up",
@@ -37,11 +38,16 @@ lines = [
 for module, count in sorted(module_counts.items(), key=lambda item: (-item[1], item[0])):
     lines.append(f"- `{module}`: {count}")
 
+lines.extend(["", "## Annotation support", ""])
+
+for source, count in sorted(annotation_source_counts.items(), key=lambda item: (-item[1], item[0])):
+    lines.append(f"- `{source}`: {count}")
+
 lines.extend(["", "## Suggested follow-up targets", ""])
 
 if singletons:
     for row in singletons:
-        product = row["product"] or row["consensus_product"] or "unannotated protein"
+        product = row.get("preferred_product") or row["product"] or row["consensus_product"] or "unannotated protein"
         lines.append(
             f"- Singleton: `{row['gene_id']}` ({product}); prioritize topology/domain searches and homolog review."
         )
@@ -50,7 +56,7 @@ else:
 
 if accessory_sorted:
     for row in accessory_sorted[:8]:
-        product = row["product"] or row["consensus_product"] or "unannotated protein"
+        product = row.get("preferred_product") or row["product"] or row["consensus_product"] or "unannotated protein"
         lines.append(
             f"- Accessory: `{row['gene_id']}` ({product}); present in `{row['n_genomes']}` genomes."
         )

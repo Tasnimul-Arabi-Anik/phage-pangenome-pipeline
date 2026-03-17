@@ -34,6 +34,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Build a manuscript-style pangenome report.")
     parser.add_argument("--summary", required=True)
     parser.add_argument("--query-table", required=True)
+    parser.add_argument("--annotation-summary", required=True)
     parser.add_argument("--feature-note", required=True)
     parser.add_argument("--heatmap", required=True)
     parser.add_argument("--output-md", required=True)
@@ -46,6 +47,7 @@ args = parse_args()
 
 summary = read_kv_tsv(Path(args.summary))
 query_rows = read_rows(Path(args.query_table))
+annotation_summary = read_kv_tsv(Path(args.annotation_summary))
 feature_note = Path(args.feature_note).read_text().strip()
 
 report_path = Path(args.output_md)
@@ -64,10 +66,13 @@ query_core = int(summary["query_core_orthogroups"])
 query_accessory = int(summary["query_accessory_orthogroups"])
 query_singleton = int(summary["query_singleton_orthogroups"])
 
-module_counter = Counter((row["module"] or "unassigned") for row in query_rows)
+module_counter = Counter((row.get("preferred_module") or row.get("module") or "unassigned") for row in query_rows)
 singletons = [row for row in query_rows if row["category"] == "singleton"]
 accessory_rows = [row for row in query_rows if row["category"] == "accessory"]
-accessory_rows = sorted(accessory_rows, key=lambda row: (-int(row["n_genomes"]), row["module"], row["gene_id"]))
+accessory_rows = sorted(
+    accessory_rows,
+    key=lambda row: (-int(row["n_genomes"]), row.get("preferred_module", row.get("module", "")), row["gene_id"]),
+)
 
 summary_table = [
     {"Metric": "Total genomes", "Value": genomes},
@@ -87,8 +92,8 @@ for row in accessory_rows[:10]:
     top_accessory_table.append(
         {
             "Gene": row["gene_id"],
-            "Module": row["module"] or "",
-            "Product": row["product"] or row["consensus_product"] or "unannotated protein",
+            "Module": row.get("preferred_module") or row["module"] or "",
+            "Product": row.get("preferred_product") or row["product"] or row["consensus_product"] or "unannotated protein",
             "Genomes": row["n_genomes"],
         }
     )
@@ -98,8 +103,8 @@ for row in singletons:
     singleton_table.append(
         {
             "Gene": row["gene_id"],
-            "Module": row["module"] or "",
-            "Product": row["product"] or row["consensus_product"] or "unannotated protein",
+            "Module": row.get("preferred_module") or row["module"] or "",
+            "Product": row.get("preferred_product") or row["product"] or row["consensus_product"] or "unannotated protein",
         }
     )
 
@@ -131,9 +136,19 @@ else:
         ]
     )
 
+resolved_from_consensus = int(annotation_summary.get("resolved_from_consensus", "0"))
+if resolved_from_consensus:
+    interpretation_lines.extend(
+        [
+            f"Orthogroup consensus propagation improved annotation for `{resolved_from_consensus}` query proteins that would otherwise have remained generic or hypothetical in a FASTA-only run.",
+            "",
+        ]
+    )
+
 if singletons:
     singleton_products = ", ".join(
-        row["product"] or row["consensus_product"] or row["gene_id"] for row in singletons[:3]
+        row.get("preferred_product") or row["product"] or row["consensus_product"] or row["gene_id"]
+        for row in singletons[:3]
     )
     interpretation_lines.extend(
         [
@@ -146,7 +161,7 @@ interpretation_lines.extend(
     [
         "## Conclusion",
         "",
-        "This report should be read as a first-pass comparative pangenome summary. Core and accessory structure is already informative from a FASTA-only input, but product-level biological interpretation improves substantially when the query is accompanied by curated annotation, domain predictions, or targeted follow-up analyses for singleton and accessory genes.",
+        "This report should be read as a first-pass comparative pangenome summary. Core and accessory structure is already informative from a FASTA-only input, and orthogroup-consensus propagation provides a useful first annotation pass, but product-level biological interpretation improves substantially when the query is accompanied by curated annotation, domain predictions, or targeted follow-up analyses for singleton and accessory genes.",
     ]
 )
 

@@ -98,8 +98,8 @@ Known caveat:
   - `06_orthology.smk`: infers RBH orthogroups and writes pangenome summary tables
   - `07_interpretation.smk`: classifies query genes into core, accessory, and singleton groups
   - `08_plots.smk`: generates the presence/absence heatmap in PNG and TIFF
-  - `09_features.smk`: writes a query-centered feature follow-up note
-  - `10_report.smk`: builds manuscript-style Markdown and DOCX reports
+  - `09_features.smk`: enriches query annotations from orthogroup consensus labels and writes a query-centered feature follow-up note
+  - `10_report.smk`: builds manuscript-style Markdown and DOCX reports using the enriched annotation table
 
 ## Remaining work
 

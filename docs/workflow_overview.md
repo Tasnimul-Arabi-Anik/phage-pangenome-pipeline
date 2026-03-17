@@ -19,9 +19,10 @@ flowchart TD
     J --> K[All-vs-all BLASTP]
     K --> L[RBH orthogroup inference]
     L --> M[Query gene classification]
+    M --> R[Query annotation enrichment]
     L --> N[Presence/absence heatmap]
     L --> O[Summary tables]
-    M --> P[Feature follow-up note]
+    R --> P[Feature follow-up note]
     N --> Q[Markdown and DOCX report]
     O --> Q
     P --> Q
@@ -32,6 +33,8 @@ flowchart TD
 - `orthology/summary.tsv`
 - `orthology/presence_absence.tsv`
 - `interpretation/query_gene_orthogroup_classification.tsv`
+- `features/query_gene_annotations.tsv`
+- `features/annotation_summary.tsv`
 - `plots/pangenome_presence_absence_heatmap.png`
 - `report/report.md`
 - `report/report.docx`
