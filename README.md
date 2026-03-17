@@ -25,6 +25,10 @@ Reusable Snakemake pipeline for comparative genomics and pangenomics of a single
 - builds a protein-based pangenome with reciprocal-best-hit `blastp`
 - writes summary tables, a presence/absence heatmap, and a report in `md` and `docx`
 
+## Workflow overview
+
+See [docs/workflow_overview.md](docs/workflow_overview.md) for a compact architecture diagram and stage summary.
+
 ## Quick start
 
 1. Put your query genome at `input/query/query.fasta`
@@ -102,3 +106,21 @@ Key outputs:
 ## Citation
 
 If you use this repository, cite the tagged release and see [CITATION.cff](CITATION.cff).
+
+Suggested citation:
+
+```text
+Anik TA. Phage Pangenome Pipeline. GitHub repository. Version v0.1.0. 2026.
+```
+
+BibTeX:
+
+```bibtex
+@software{anik_phage_pangenome_pipeline_2026,
+  author  = {Anik, Tasnimul Arabi},
+  title   = {Phage Pangenome Pipeline},
+  year    = {2026},
+  version = {v0.1.0},
+  url     = {https://github.com/Tasnimul-Arabi-Anik/phage-pangenome-pipeline}
+}
+```
