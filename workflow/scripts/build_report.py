@@ -103,6 +103,53 @@ for row in singletons:
         }
     )
 
+unassigned_count = module_counter.get("unassigned", 0)
+known_module_count = query_total - unassigned_count
+core_fraction = (query_core / query_total) if query_total else 0.0
+accessory_fraction = (query_accessory / query_total) if query_total else 0.0
+singleton_fraction = (query_singleton / query_total) if query_total else 0.0
+
+interpretation_lines = [
+    "## Interpretation",
+    "",
+    f"The query phage is represented in a `{mode}` pangenome containing `{reference_genomes}` reference genomes and `{genomes}` genomes total. The query retains a largely conserved backbone, with `{query_core}` of `{query_total}` proteins ({core_fraction:.1%}) assigned to core orthogroups, while `{query_accessory}` proteins ({accessory_fraction:.1%}) fall into the accessory fraction and `{query_singleton}` protein ({singleton_fraction:.1%}) remains query-specific under the current clustering thresholds.",
+    "",
+]
+
+if known_module_count == 0:
+    interpretation_lines.extend(
+        [
+            "Because this run started from a raw FASTA without curated functional annotation, module labels and product names remain mostly generic. This is expected for a prediction-only run and does not indicate a pipeline error. Richer interpretation requires either curated annotation input or downstream domain-based annotation of the predicted proteins.",
+            "",
+        ]
+    )
+else:
+    interpretation_lines.extend(
+        [
+            f"Functional module assignments were available for `{known_module_count}` query proteins, allowing a more specific biological interpretation of the conserved and variable gene fractions.",
+            "",
+        ]
+    )
+
+if singletons:
+    singleton_products = ", ".join(
+        row["product"] or row["consensus_product"] or row["gene_id"] for row in singletons[:3]
+    )
+    interpretation_lines.extend(
+        [
+            f"The query-specific singleton set includes: {singleton_products}. These genes are the highest-priority targets for follow-up annotation, topology prediction, and homolog review because they are most likely to capture lineage-specific biology.",
+            "",
+        ]
+    )
+
+interpretation_lines.extend(
+    [
+        "## Conclusion",
+        "",
+        "This report should be read as a first-pass comparative pangenome summary. Core and accessory structure is already informative from a FASTA-only input, but product-level biological interpretation improves substantially when the query is accompanied by curated annotation, domain predictions, or targeted follow-up analyses for singleton and accessory genes.",
+    ]
+)
+
 methods_lines = [
     "## Methods",
     "",
@@ -149,6 +196,8 @@ results_lines.extend(
         "## Feature follow-up note",
         "",
         feature_note,
+        "",
+        *interpretation_lines,
     ]
 )
 

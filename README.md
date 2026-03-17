@@ -90,6 +90,38 @@ Alternative example configs:
 - `config/local_cohort_example.yaml`
 - `config/local_blast_db_example.yaml`
 
+## Adjust reference cohort size
+
+The default single-FASTA configuration is conservative and uses:
+
+- `max_candidates: 50`
+- `close_target: 10`
+- `expanded_target: 20`
+
+This means the pipeline may discover up to 50 candidate phages, but the default expanded analysis keeps only the top 20 references after filtering and QC.
+
+To use more references, edit `config/config.yaml`:
+
+```yaml
+reference_selection:
+  max_candidates: 80
+  close_target: 15
+  expanded_target: 40
+```
+
+Practical guidance:
+
+- use `10-20` references for a tight close-relative analysis
+- use `30-50` references for a broader lineage-level pangenome
+- increase `max_candidates` when you increase `expanded_target`, so the pipeline has enough filtered candidates to choose from
+- if `require_translated_cds: true`, some downloaded references may still be excluded before final selection
+
+After editing the config, rerun:
+
+```bash
+XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile --cores 4
+```
+
 ## Installation notes
 
 This repository expects `snakemake`, `blast+`, and Python dependencies required by the helper scripts.
