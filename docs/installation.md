@@ -205,6 +205,40 @@ XDG_CACHE_HOME=$PWD/.cache snakemake -s workflow/Snakefile -n --configfile tests
 - `configured`
   Requires a local accession list and a local multi-record GenBank file.
 
+## Optional external BLASTP annotation
+
+If you want stronger protein annotation than orthogroup consensus alone, provide a protein FASTA database and enable the optional external BLASTP stage in `config/config.yaml`:
+
+```yaml
+annotation:
+  blastp: true
+  protein_db_fasta: /path/to/annotation_database.faa
+  protein_db_metadata: /path/to/annotation_metadata.tsv
+  max_target_seqs: 5
+  max_evalue: 1e-5
+  min_identity: 30
+  min_query_coverage: 50
+```
+
+This stage uses:
+
+- `makeblastdb` to build a temporary protein BLAST database
+- `blastp` to search the query proteins against that database
+- optional metadata mapping to turn accession-only subject IDs into real product and module labels
+
+Outputs:
+
+- `features/query_blastp_hits.tsv`
+- `features/query_blastp_summary.tsv`
+- improved propagated labels in `features/query_gene_annotations.tsv`
+
+Recommended metadata columns:
+
+- `seq_id`
+- `protein_id`
+- `product`
+- `module`
+
 ## Troubleshooting
 
 ### `snakemake: command not found`

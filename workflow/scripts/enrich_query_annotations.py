@@ -38,12 +38,20 @@ def infer_module(product: str) -> str:
 
 
 query_table_path = Path(snakemake.input.query_table)
+blastp_hits_path = Path(snakemake.input.blastp_hits)
 annotation_table_path = Path(snakemake.output.annotation_table)
 summary_path = Path(snakemake.output.summary)
 annotation_table_path.parent.mkdir(parents=True, exist_ok=True)
 
 with query_table_path.open() as handle:
     rows = list(csv.DictReader(handle, delimiter="\t"))
+
+blastp_hits = {}
+if blastp_hits_path.exists():
+    with blastp_hits_path.open() as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        for row in reader:
+            blastp_hits[row["qseqid"]] = row
 
 enriched_rows = []
 annotation_source_counts = Counter()
@@ -54,10 +62,16 @@ for row in rows:
     original_product = (row.get("product") or "").strip()
     consensus_product = (row.get("consensus_product") or "").strip()
     original_module = (row.get("module") or "").strip()
+    blastp_row = blastp_hits.get(row["gene_id"], {})
+    blastp_product = (blastp_row.get("blastp_product") or blastp_row.get("subject_title") or "").strip()
+    blastp_module = (blastp_row.get("blastp_module") or "").strip()
 
     if original_product and not is_hypothetical(original_product):
         preferred_product = original_product
         annotation_source = "query_annotation"
+    elif blastp_product and not is_hypothetical(blastp_product):
+        preferred_product = blastp_product
+        annotation_source = "external_blastp"
     elif consensus_product and not is_hypothetical(consensus_product):
         preferred_product = consensus_product
         annotation_source = "orthogroup_consensus"
@@ -65,6 +79,9 @@ for row in rows:
     elif original_product:
         preferred_product = original_product
         annotation_source = "query_annotation"
+    elif blastp_product:
+        preferred_product = blastp_product
+        annotation_source = "external_blastp"
     elif consensus_product:
         preferred_product = consensus_product
         annotation_source = "orthogroup_consensus"
@@ -74,6 +91,8 @@ for row in rows:
 
     if original_module and original_module != "hypothetical":
         preferred_module = original_module
+    elif annotation_source == "external_blastp" and blastp_module:
+        preferred_module = blastp_module
     else:
         preferred_module = infer_module(preferred_product)
 
@@ -100,11 +119,19 @@ with annotation_table_path.open("w", newline="") as handle:
             "preferred_module",
             "preferred_product",
             "annotation_source",
+            "blastp_subject",
+            "blastp_pident",
+            "blastp_qcovs",
         ],
         delimiter="\t",
     )
     writer.writeheader()
-    writer.writerows(enriched_rows)
+    for row in enriched_rows:
+        blastp_row = blastp_hits.get(row["gene_id"], {})
+        row["blastp_subject"] = blastp_row.get("sseqid", "")
+        row["blastp_pident"] = blastp_row.get("pident", "")
+        row["blastp_qcovs"] = blastp_row.get("qcovs", "")
+        writer.writerow(row)
 
 with summary_path.open("w", newline="") as handle:
     writer = csv.writer(handle, delimiter="\t")

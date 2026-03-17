@@ -22,5 +22,7 @@ rule all:
         f"results/{config['project_name']}/plots/pangenome_presence_absence_heatmap.png",
         f"results/{config['project_name']}/plots/pangenome_presence_absence_heatmap.tiff",
         f"results/{config['project_name']}/interpretation/query_gene_orthogroup_classification.tsv",
+        f"results/{config['project_name']}/features/query_blastp_hits.tsv",
+        f"results/{config['project_name']}/features/query_blastp_summary.tsv",
         f"results/{config['project_name']}/features/query_gene_annotations.tsv",
         f"results/{config['project_name']}/features/annotation_summary.tsv"

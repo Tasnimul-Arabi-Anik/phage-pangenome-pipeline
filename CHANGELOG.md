@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added an optional external `BLASTP` annotation stage using a user-supplied protein FASTA database.
+- Added optional `annotation.protein_db_metadata` support so accession-only BLAST databases can still resolve to product and module labels.
+- Added `features/query_blastp_hits.tsv` and `features/query_blastp_summary.tsv`.
+- Updated report generation to distinguish annotation coming from query labels, orthogroup consensus, and external BLASTP.
+
 ## v0.2.0
 
 - Added annotation enrichment for FASTA-only runs by propagating orthogroup consensus labels into query-gene outputs.

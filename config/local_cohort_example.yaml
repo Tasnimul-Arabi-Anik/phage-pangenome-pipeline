@@ -37,7 +37,14 @@ plotting:
   heatmap: true
   title: Local Cohort Phage Pangenome Presence/Absence Heatmap
 
-features:
+annotation:
+  blastp: false
+  protein_db_fasta: ""
+  protein_db_metadata: ""
+  max_target_seqs: 5
+  max_evalue: 1e-5
+  min_identity: 30
+  min_query_coverage: 50
   deeptmhmm: true
   signalp: false
   interproscan: false

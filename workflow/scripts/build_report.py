@@ -137,10 +137,18 @@ else:
     )
 
 resolved_from_consensus = int(annotation_summary.get("resolved_from_consensus", "0"))
+resolved_from_blastp = int(annotation_summary.get("annotation_source::external_blastp", "0"))
 if resolved_from_consensus:
     interpretation_lines.extend(
         [
             f"Orthogroup consensus propagation improved annotation for `{resolved_from_consensus}` query proteins that would otherwise have remained generic or hypothetical in a FASTA-only run.",
+            "",
+        ]
+    )
+if resolved_from_blastp:
+    interpretation_lines.extend(
+        [
+            f"External BLASTP annotation contributed preferred functional labels for `{resolved_from_blastp}` query proteins, providing a stronger annotation layer than pangenome consensus alone when a suitable protein database is configured.",
             "",
         ]
     )
@@ -172,6 +180,13 @@ methods_lines = [
     "",
     f"Orthogroups were inferred with an all-vs-all reciprocal-best-hit `blastp` strategy using minimum identity `{summary['min_identity']}%`, minimum query coverage `{summary['min_query_coverage']}%`, minimum subject coverage `{summary['min_subject_coverage']}%`, and maximum E-value `{summary['max_evalue']}`. Orthogroups were classified as core, accessory, or singleton according to the number of genomes represented in each cluster.",
 ]
+if resolved_from_blastp:
+    methods_lines.extend(
+        [
+            "",
+            "An optional external annotation step was enabled in which query proteins were searched against a user-supplied protein FASTA with `blastp`, and informative top hits were used to refine query product labels before report generation.",
+        ]
+    )
 
 results_lines = [
     "## Results",
