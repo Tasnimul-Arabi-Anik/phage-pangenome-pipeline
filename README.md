@@ -6,6 +6,7 @@ Reusable Snakemake pipeline for comparative genomics and pangenomics of a single
 [![license](https://img.shields.io/github/license/Tasnimul-Arabi-Anik/phage-pangenome-pipeline)](LICENSE)
 [![workflow](https://img.shields.io/badge/workflow-Snakemake-039BE5)](https://snakemake.readthedocs.io/)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](https://www.python.org/)
+[![ci-smoke](https://github.com/Tasnimul-Arabi-Anik/phage-pangenome-pipeline/actions/workflows/ci-smoke.yml/badge.svg)](https://github.com/Tasnimul-Arabi-Anik/phage-pangenome-pipeline/actions/workflows/ci-smoke.yml)
 
 ## Validated modes
 
@@ -60,6 +61,8 @@ The workflow was developed and validated with:
 - BLAST+ available in `PATH`
 - `pandoc` available in `PATH` for DOCX report export
 
+See [docs/installation.md](docs/installation.md) for a compact installation guide.
+
 ## Discovery modes
 
 - `blastn_remote`
@@ -94,6 +97,20 @@ Key outputs:
 - `plots/pangenome_presence_absence_heatmap.tiff`
 - `report/report.md`
 - `report/report.docx`
+
+## Test dataset
+
+A small bundled test genome is provided at:
+
+```text
+tests/data/klebsiella.fasta
+```
+
+Lightweight CI uses:
+
+```text
+tests/config/ci_smoke_test.yaml
+```
 
 ## Repository guide
 
