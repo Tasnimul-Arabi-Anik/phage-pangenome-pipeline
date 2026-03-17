@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.3.0
 
 - Added an optional external `BLASTP` annotation stage using a user-supplied protein FASTA database.
 - Added optional `annotation.protein_db_metadata` support so accession-only BLAST databases can still resolve to product and module labels.
