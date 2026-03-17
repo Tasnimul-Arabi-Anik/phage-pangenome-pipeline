@@ -1,0 +1,46 @@
+project_name: example_single_fasta_run
+query_fasta: input/query/query.fasta
+mode: expanded
+
+inputs:
+  existing_query_proteins: ""
+  existing_query_annotations: ""
+  existing_query_gff: ""
+  existing_query_cds: ""
+  existing_references_gb: ""
+  existing_reference_accessions: ""
+
+reference_selection:
+  discovery_method: blastn_remote
+  max_candidates: 50
+  close_target: 10
+  expanded_target: 20
+  min_genome_length: 15000
+  max_genome_length: 500000
+  require_translated_cds: true
+  dereplicate: true
+  remote_blast_db: nt
+  remote_entrez_query: "phage[All Fields]"
+  remote_blast_task: megablast
+  remote_max_target_seqs: 50
+  remote_fetch_chunk_size: 10
+  local_blast_db: ""
+  local_blast_task: megablast
+  local_blast_max_target_seqs: 50
+
+orthology:
+  method: rbh_blastp
+  min_identity: 30
+  min_query_coverage: 70
+  min_subject_coverage: 70
+  max_evalue: 1e-5
+
+plotting:
+  dpi: 400
+  heatmap: true
+  title: Phage Pangenome Presence/Absence Heatmap
+
+features:
+  deeptmhmm: true
+  signalp: false
+  interproscan: false

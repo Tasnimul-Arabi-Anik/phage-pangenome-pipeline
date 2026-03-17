@@ -1,0 +1,8 @@
+name: phage-pangenome-orthology
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - mmseqs2
+  - blast
+  - python=3.12

@@ -1,0 +1,43 @@
+project_name: example_local_cohort_run
+query_fasta: ../klebsiella.fasta
+mode: expanded
+
+inputs:
+  existing_query_proteins: ../query_proteins.faa
+  existing_query_annotations: ../final_gene_table_deduplicated.tsv
+  existing_query_gff: ../query_prodigal.gff
+  existing_query_cds: ../query_nucl_cds.fna
+  existing_references_gb: expanded_refs.gb
+  existing_reference_accessions: cohorts/expanded_refs.txt
+
+reference_selection:
+  discovery_method: configured
+  max_candidates: 100
+  close_target: 15
+  expanded_target: 50
+  min_genome_length: 15000
+  max_genome_length: 500000
+  require_translated_cds: true
+  dereplicate: true
+  remote_blast_db: nt
+  remote_entrez_query: "Klebsiella phage[All Fields]"
+  remote_blast_task: megablast
+  remote_max_target_seqs: 100
+  remote_fetch_chunk_size: 20
+
+orthology:
+  method: rbh_blastp
+  min_identity: 30
+  min_query_coverage: 70
+  min_subject_coverage: 70
+  max_evalue: 1e-5
+
+plotting:
+  dpi: 400
+  heatmap: true
+  title: Local Cohort Phage Pangenome Presence/Absence Heatmap
+
+features:
+  deeptmhmm: true
+  signalp: false
+  interproscan: false

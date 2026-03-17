@@ -1,0 +1,10 @@
+name: phage-pangenome-plotting
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - matplotlib
+  - seaborn
+  - pandas
+  - pillow

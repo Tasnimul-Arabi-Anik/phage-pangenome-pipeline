@@ -1,0 +1,24 @@
+configfile: "config/config.yaml"
+
+include: "rules/00_input.smk"
+include: "rules/01_query.smk"
+include: "rules/02_discovery.smk"
+include: "rules/03_retrieval.smk"
+include: "rules/04_qc.smk"
+include: "rules/05_proteins.smk"
+include: "rules/06_orthology.smk"
+include: "rules/07_interpretation.smk"
+include: "rules/08_plots.smk"
+include: "rules/09_features.smk"
+include: "rules/10_report.smk"
+
+
+rule all:
+    input:
+        f"results/{config['project_name']}/report/report.md",
+        f"results/{config['project_name']}/report/report.docx",
+        f"results/{config['project_name']}/orthology/summary.tsv",
+        f"results/{config['project_name']}/orthology/presence_absence.tsv",
+        f"results/{config['project_name']}/plots/pangenome_presence_absence_heatmap.png",
+        f"results/{config['project_name']}/plots/pangenome_presence_absence_heatmap.tiff",
+        f"results/{config['project_name']}/interpretation/query_gene_orthogroup_classification.tsv"

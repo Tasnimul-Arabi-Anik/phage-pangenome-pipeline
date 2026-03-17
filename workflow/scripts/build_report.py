@@ -1,0 +1,168 @@
+import argparse
+import csv
+from collections import Counter
+from pathlib import Path
+
+
+def read_kv_tsv(path: Path):
+    data = {}
+    with path.open() as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        for row in reader:
+            data[row["metric"]] = row["value"]
+    return data
+
+
+def read_rows(path: Path):
+    with path.open() as handle:
+        return list(csv.DictReader(handle, delimiter="\t"))
+
+
+def md_table(headers, rows):
+    if not rows:
+        return ""
+    lines = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(["---"] * len(headers)) + " |",
+    ]
+    for row in rows:
+        lines.append("| " + " | ".join(str(row.get(header, "")) for header in headers) + " |")
+    return "\n".join(lines)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Build a manuscript-style pangenome report.")
+    parser.add_argument("--summary", required=True)
+    parser.add_argument("--query-table", required=True)
+    parser.add_argument("--feature-note", required=True)
+    parser.add_argument("--heatmap", required=True)
+    parser.add_argument("--output-md", required=True)
+    parser.add_argument("--project-name", required=True)
+    parser.add_argument("--mode", required=True)
+    return parser.parse_args()
+
+
+args = parse_args()
+
+summary = read_kv_tsv(Path(args.summary))
+query_rows = read_rows(Path(args.query_table))
+feature_note = Path(args.feature_note).read_text().strip()
+
+report_path = Path(args.output_md)
+report_path.parent.mkdir(parents=True, exist_ok=True)
+
+project_name = args.project_name
+mode = summary.get("mode", args.mode)
+genomes = int(summary["genomes"])
+reference_genomes = int(summary["reference_genomes"])
+orthogroups_total = int(summary["orthogroups_total"])
+core = int(summary["core_orthogroups"])
+accessory = int(summary["accessory_orthogroups"])
+singleton = int(summary["singleton_orthogroups"])
+query_total = int(summary["query_proteins_total"])
+query_core = int(summary["query_core_orthogroups"])
+query_accessory = int(summary["query_accessory_orthogroups"])
+query_singleton = int(summary["query_singleton_orthogroups"])
+
+module_counter = Counter((row["module"] or "unassigned") for row in query_rows)
+singletons = [row for row in query_rows if row["category"] == "singleton"]
+accessory_rows = [row for row in query_rows if row["category"] == "accessory"]
+accessory_rows = sorted(accessory_rows, key=lambda row: (-int(row["n_genomes"]), row["module"], row["gene_id"]))
+
+summary_table = [
+    {"Metric": "Total genomes", "Value": genomes},
+    {"Metric": "Reference genomes", "Value": reference_genomes},
+    {"Metric": "Total orthogroups", "Value": orthogroups_total},
+    {"Metric": "Core orthogroups", "Value": core},
+    {"Metric": "Accessory orthogroups", "Value": accessory},
+    {"Metric": "Singleton orthogroups", "Value": singleton},
+    {"Metric": "Query proteins", "Value": query_total},
+    {"Metric": "Query core assignments", "Value": query_core},
+    {"Metric": "Query accessory assignments", "Value": query_accessory},
+    {"Metric": "Query singleton assignments", "Value": query_singleton},
+]
+
+top_accessory_table = []
+for row in accessory_rows[:10]:
+    top_accessory_table.append(
+        {
+            "Gene": row["gene_id"],
+            "Module": row["module"] or "",
+            "Product": row["product"] or row["consensus_product"] or "unannotated protein",
+            "Genomes": row["n_genomes"],
+        }
+    )
+
+singleton_table = []
+for row in singletons:
+    singleton_table.append(
+        {
+            "Gene": row["gene_id"],
+            "Module": row["module"] or "",
+            "Product": row["product"] or row["consensus_product"] or "unannotated protein",
+        }
+    )
+
+methods_lines = [
+    "## Methods",
+    "",
+    "The pipeline was run from a single query phage FASTA. Coding sequences were predicted with `prodigal` when available or with `pyrodigal` as the local fallback. Reference phages were identified either from a configured local cohort or by remote `blastn` discovery against NCBI nucleotide records, followed by GenBank retrieval with `efetch`. Records lacking translated CDS features were excluded before protein clustering.",
+    "",
+    f"Orthogroups were inferred with an all-vs-all reciprocal-best-hit `blastp` strategy using minimum identity `{summary['min_identity']}%`, minimum query coverage `{summary['min_query_coverage']}%`, minimum subject coverage `{summary['min_subject_coverage']}%`, and maximum E-value `{summary['max_evalue']}`. Orthogroups were classified as core, accessory, or singleton according to the number of genomes represented in each cluster.",
+]
+
+results_lines = [
+    "## Results",
+    "",
+    f"The `{project_name}` run was executed in `{mode}` mode and retained `{reference_genomes}` reference genomes plus the query genome (`{genomes}` genomes total). Across the final protein set, the pipeline identified `{orthogroups_total}` orthogroups, including `{core}` core groups, `{accessory}` accessory groups, and `{singleton}` singleton groups.",
+    "",
+    f"The query phage contributed `{query_total}` proteins to the pangenome. Of these, `{query_core}` mapped to core orthogroups, `{query_accessory}` mapped to accessory orthogroups, and `{query_singleton}` mapped to singleton orthogroups.",
+    "",
+    "### Summary statistics",
+    "",
+    md_table(["Metric", "Value"], summary_table),
+    "",
+    "### Query module distribution",
+    "",
+]
+
+for module, count in sorted(module_counter.items(), key=lambda item: (-item[1], item[0])):
+    results_lines.append(f"- `{module}`: {count}")
+
+results_lines.extend(
+    [
+        "",
+        "### Query accessory genes",
+        "",
+        md_table(["Gene", "Module", "Product", "Genomes"], top_accessory_table) or "No query accessory genes were detected.",
+        "",
+        "### Query singleton genes",
+        "",
+        md_table(["Gene", "Module", "Product"], singleton_table) or "No query singleton genes were detected.",
+        "",
+        "## Figures",
+        "",
+        "Figure 1. Orthogroup presence/absence heatmap generated from the final pangenome matrix.",
+        "",
+        f"![Pangenome heatmap]({Path(args.heatmap).resolve()})",
+        "",
+        "## Feature follow-up note",
+        "",
+        feature_note,
+    ]
+)
+
+report_text = "\n".join(
+    [
+        "# Comparative Pangenome Report",
+        "",
+        f"Project: `{project_name}`",
+        "",
+        *methods_lines,
+        "",
+        *results_lines,
+        "",
+    ]
+)
+
+report_path.write_text(report_text)

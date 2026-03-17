@@ -1,0 +1,6 @@
+name: phage-pangenome-blast
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - blast

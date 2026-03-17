@@ -1,0 +1,11 @@
+name: phage-pangenome-base
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - pip
+  - pandas
+  - matplotlib
+  - seaborn
+  - pyyaml
