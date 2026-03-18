@@ -71,6 +71,12 @@ sudo apt update
 sudo apt install ncbi-blast+ pandoc
 ```
 
+If you want to use the optional Pfam domain-annotation stage, also install HMMER:
+
+```bash
+sudo apt install hmmer
+```
+
 Dry-run first:
 
 ```bash

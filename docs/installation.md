@@ -119,6 +119,12 @@ sudo apt update
 sudo apt install ncbi-blast+ pandoc
 ```
 
+If you want to use the optional Pfam domain-annotation stage, also install HMMER:
+
+```bash
+sudo apt install hmmer
+```
+
 This route is acceptable, but conda or mamba is still preferred for the full workflow environment because it is easier to reproduce.
 
 ### Practical fresh-clone `venv` example
@@ -279,6 +285,18 @@ If you used a `venv`, this is expected until you install BLAST+ separately with 
 Pandoc is not installed or not available in `PATH`. The pipeline can still produce Markdown, but DOCX export requires Pandoc.
 
 If you used a `venv`, install it separately because `pip` does not provide the system `pandoc` executable used here.
+
+### `hmmscan: command not found`
+
+HMMER is not installed or not available in `PATH`. This matters only if you enable:
+
+- `annotation.pfam_hmmscan: true`
+
+For Ubuntu or Debian, install it with:
+
+```bash
+sudo apt install hmmer
+```
 
 ### Query characterization fails because `prodigal` or `pyrodigal` is missing
 
