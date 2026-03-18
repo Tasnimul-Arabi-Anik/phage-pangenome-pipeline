@@ -216,10 +216,11 @@ tests/config/ci_smoke_test.yaml
 - Remote `blastn` can queue for several minutes.
 - Local BLAST mode is heavier but avoids remote queueing.
 - FASTA-only runs now receive a first-pass annotation boost from orthogroup consensus propagation.
-- For stronger annotation, enable `annotation.blastp: true` and set `annotation.protein_db_fasta` to a protein FASTA database.
-- If your BLAST database FASTA headers are accession-only, also provide `annotation.protein_db_metadata` with `seq_id` or `protein_id` to product mappings.
-- For domain-level support, enable `annotation.pfam_hmmscan: true` and set `annotation.pfam_db` to a Pfam-format HMM database.
-- External BLASTP annotation improves labels, but it still does not replace domain-based annotation such as InterProScan or HMMER.
+- Optional external `BLASTP` and Pfam/HMMER annotation are supported.
+- See [docs/installation.md](docs/installation.md) for the detailed setup of:
+  - external BLASTP annotation
+  - optional Pfam/HMMER annotation
+  - required external tools and database inputs
 - Large downloaded references and generated results should not be committed.
 - `PIPELINE_README.md` contains the fuller workflow guide.
 - `AGENTS.md` contains Codex-oriented repository instructions.
