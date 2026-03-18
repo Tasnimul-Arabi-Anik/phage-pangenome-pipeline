@@ -48,6 +48,9 @@ annotation:
   max_evalue: 1e-5
   min_identity: 30
   min_query_coverage: 50
+  pfam_hmmscan: false
+  pfam_db: ""
+  pfam_max_evalue: 1e-3
   deeptmhmm: true
   signalp: false
   interproscan: false

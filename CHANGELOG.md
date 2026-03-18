@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added optional Pfam `hmmscan` support with configurable `annotation.pfam_db` and `annotation.pfam_max_evalue`.
+- Added `features/query_hmmscan_hits.tsv` and `features/query_hmmscan_summary.tsv`.
+- Updated annotation enrichment so Pfam domain hits can contribute to query-gene labels when available.
+- Added `hmmer` to the full environment specification.
+
 ## v0.3.0
 
 - Added an optional external `BLASTP` annotation stage using a user-supplied protein FASTA database.

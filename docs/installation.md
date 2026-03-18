@@ -239,6 +239,29 @@ Recommended metadata columns:
 - `product`
 - `module`
 
+## Optional Pfam hmmscan annotation
+
+If you want domain-level support for proteins that remain hypothetical after BLASTP and orthogroup consensus, enable the optional Pfam stage:
+
+```yaml
+annotation:
+  pfam_hmmscan: true
+  pfam_db: /path/to/Pfam-A.hmm
+  pfam_max_evalue: 1e-3
+```
+
+This stage uses:
+
+- `hmmscan` from HMMER
+- a user-managed Pfam-format HMM database
+
+Outputs:
+
+- `features/query_hmmscan_hits.tsv`
+- `features/query_hmmscan_summary.tsv`
+
+This stage is optional and disabled by default because the Pfam database can require substantial disk space.
+
 ## Troubleshooting
 
 ### `snakemake: command not found`

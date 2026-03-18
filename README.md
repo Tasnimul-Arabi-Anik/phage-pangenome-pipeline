@@ -26,6 +26,7 @@ Reusable Snakemake pipeline for comparative genomics and pangenomics of a single
 - builds a protein-based pangenome with reciprocal-best-hit `blastp`
 - enriches query annotations from orthogroup consensus labels for FASTA-only runs
 - optionally runs external `BLASTP` annotation against a user-supplied protein FASTA database
+- optionally runs `hmmscan` against a user-supplied Pfam HMM database
 - writes summary tables, a presence/absence heatmap, and a report in `md` and `docx`
 
 ## Workflow overview
@@ -181,6 +182,8 @@ Key outputs:
 - `interpretation/query_gene_orthogroup_classification.tsv`
 - `features/query_blastp_hits.tsv`
 - `features/query_blastp_summary.tsv`
+- `features/query_hmmscan_hits.tsv`
+- `features/query_hmmscan_summary.tsv`
 - `features/query_gene_annotations.tsv`
 - `features/annotation_summary.tsv`
 - `plots/pangenome_presence_absence_heatmap.png`
@@ -209,6 +212,7 @@ tests/config/ci_smoke_test.yaml
 - FASTA-only runs now receive a first-pass annotation boost from orthogroup consensus propagation.
 - For stronger annotation, enable `annotation.blastp: true` and set `annotation.protein_db_fasta` to a protein FASTA database.
 - If your BLAST database FASTA headers are accession-only, also provide `annotation.protein_db_metadata` with `seq_id` or `protein_id` to product mappings.
+- For domain-level support, enable `annotation.pfam_hmmscan: true` and set `annotation.pfam_db` to a Pfam-format HMM database.
 - External BLASTP annotation improves labels, but it still does not replace domain-based annotation such as InterProScan or HMMER.
 - Large downloaded references and generated results should not be committed.
 - `PIPELINE_README.md` contains the fuller workflow guide.

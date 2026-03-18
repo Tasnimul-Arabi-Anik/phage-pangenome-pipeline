@@ -6,6 +6,7 @@ dependencies:
   - python=3.12
   - snakemake
   - blast
+  - hmmer
   - pandoc
   - pyrodigal
   - pandas

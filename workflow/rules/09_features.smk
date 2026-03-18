@@ -10,10 +10,23 @@ rule annotate_query_with_blastp:
         "../scripts/run_blastp_annotation.py"
 
 
+rule annotate_query_with_hmmscan:
+    input:
+        query_proteins=f"results/{config['project_name']}/query/query_proteins.faa"
+    output:
+        hits=f"results/{config['project_name']}/features/query_hmmscan_hits.tsv",
+        summary=f"results/{config['project_name']}/features/query_hmmscan_summary.tsv"
+    message:
+        "Annotate query proteins with optional Pfam hmmscan hits."
+    script:
+        "../scripts/run_hmmscan_annotation.py"
+
+
 rule enrich_query_annotations:
     input:
         query_table=f"results/{config['project_name']}/interpretation/query_gene_orthogroup_classification.tsv",
-        blastp_hits=f"results/{config['project_name']}/features/query_blastp_hits.tsv"
+        blastp_hits=f"results/{config['project_name']}/features/query_blastp_hits.tsv",
+        hmmscan_hits=f"results/{config['project_name']}/features/query_hmmscan_hits.tsv"
     output:
         annotation_table=f"results/{config['project_name']}/features/query_gene_annotations.tsv",
         summary=f"results/{config['project_name']}/features/annotation_summary.tsv"

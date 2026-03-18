@@ -39,6 +39,7 @@ def infer_module(product: str) -> str:
 
 query_table_path = Path(snakemake.input.query_table)
 blastp_hits_path = Path(snakemake.input.blastp_hits)
+hmmscan_hits_path = Path(snakemake.input.hmmscan_hits)
 annotation_table_path = Path(snakemake.output.annotation_table)
 summary_path = Path(snakemake.output.summary)
 annotation_table_path.parent.mkdir(parents=True, exist_ok=True)
@@ -53,6 +54,13 @@ if blastp_hits_path.exists():
         for row in reader:
             blastp_hits[row["qseqid"]] = row
 
+hmmscan_hits = {}
+if hmmscan_hits_path.exists():
+    with hmmscan_hits_path.open() as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        for row in reader:
+            hmmscan_hits[row["qseqid"]] = row
+
 enriched_rows = []
 annotation_source_counts = Counter()
 module_counts = Counter()
@@ -65,6 +73,8 @@ for row in rows:
     blastp_row = blastp_hits.get(row["gene_id"], {})
     blastp_product = (blastp_row.get("blastp_product") or blastp_row.get("subject_title") or "").strip()
     blastp_module = (blastp_row.get("blastp_module") or "").strip()
+    hmmscan_row = hmmscan_hits.get(row["gene_id"], {})
+    hmmscan_product = (hmmscan_row.get("pfam_product") or hmmscan_row.get("pfam_description") or "").strip()
 
     if original_product and not is_hypothetical(original_product):
         preferred_product = original_product
@@ -76,6 +86,9 @@ for row in rows:
         preferred_product = consensus_product
         annotation_source = "orthogroup_consensus"
         resolved_from_consensus += 1
+    elif hmmscan_product and not is_hypothetical(hmmscan_product):
+        preferred_product = hmmscan_product
+        annotation_source = "pfam_hmmscan"
     elif original_product:
         preferred_product = original_product
         annotation_source = "query_annotation"
@@ -85,6 +98,9 @@ for row in rows:
     elif consensus_product:
         preferred_product = consensus_product
         annotation_source = "orthogroup_consensus"
+    elif hmmscan_product:
+        preferred_product = hmmscan_product
+        annotation_source = "pfam_hmmscan"
     else:
         preferred_product = "hypothetical protein"
         annotation_source = "none"
@@ -122,6 +138,9 @@ with annotation_table_path.open("w", newline="") as handle:
             "blastp_subject",
             "blastp_pident",
             "blastp_qcovs",
+            "pfam_name",
+            "pfam_accession",
+            "pfam_evalue",
         ],
         delimiter="\t",
     )
@@ -131,6 +150,10 @@ with annotation_table_path.open("w", newline="") as handle:
         row["blastp_subject"] = blastp_row.get("sseqid", "")
         row["blastp_pident"] = blastp_row.get("pident", "")
         row["blastp_qcovs"] = blastp_row.get("qcovs", "")
+        hmmscan_row = hmmscan_hits.get(row["gene_id"], {})
+        row["pfam_name"] = hmmscan_row.get("pfam_name", "")
+        row["pfam_accession"] = hmmscan_row.get("pfam_accession", "")
+        row["pfam_evalue"] = hmmscan_row.get("pfam_evalue", "")
         writer.writerow(row)
 
 with summary_path.open("w", newline="") as handle:

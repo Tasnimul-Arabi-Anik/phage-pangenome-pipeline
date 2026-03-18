@@ -24,5 +24,7 @@ rule all:
         f"results/{config['project_name']}/interpretation/query_gene_orthogroup_classification.tsv",
         f"results/{config['project_name']}/features/query_blastp_hits.tsv",
         f"results/{config['project_name']}/features/query_blastp_summary.tsv",
+        f"results/{config['project_name']}/features/query_hmmscan_hits.tsv",
+        f"results/{config['project_name']}/features/query_hmmscan_summary.tsv",
         f"results/{config['project_name']}/features/query_gene_annotations.tsv",
         f"results/{config['project_name']}/features/annotation_summary.tsv"

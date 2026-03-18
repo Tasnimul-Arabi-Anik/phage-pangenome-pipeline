@@ -138,6 +138,7 @@ else:
 
 resolved_from_consensus = int(annotation_summary.get("resolved_from_consensus", "0"))
 resolved_from_blastp = int(annotation_summary.get("annotation_source::external_blastp", "0"))
+resolved_from_pfam = int(annotation_summary.get("annotation_source::pfam_hmmscan", "0"))
 if resolved_from_consensus:
     interpretation_lines.extend(
         [
@@ -149,6 +150,13 @@ if resolved_from_blastp:
     interpretation_lines.extend(
         [
             f"External BLASTP annotation contributed preferred functional labels for `{resolved_from_blastp}` query proteins, providing a stronger annotation layer than pangenome consensus alone when a suitable protein database is configured.",
+            "",
+        ]
+    )
+if resolved_from_pfam:
+    interpretation_lines.extend(
+        [
+            f"Pfam hmmscan contributed domain-based annotation for `{resolved_from_pfam}` query proteins, helping to classify proteins that remained weakly annotated after direct label propagation.",
             "",
         ]
     )
@@ -185,6 +193,13 @@ if resolved_from_blastp:
         [
             "",
             "An optional external annotation step was enabled in which query proteins were searched against a user-supplied protein FASTA with `blastp`, and informative top hits were used to refine query product labels before report generation.",
+        ]
+    )
+if resolved_from_pfam:
+    methods_lines.extend(
+        [
+            "",
+            "An optional Pfam annotation step was enabled in which query proteins were searched against a user-supplied HMM database with `hmmscan`, and informative domain hits were used as an additional annotation source.",
         ]
     )
 
